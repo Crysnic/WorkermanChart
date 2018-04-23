@@ -1,5 +1,9 @@
 {
     "require": {
-        "workerman/workerman": "^3.5"
+        "workerman/workerman": "^3.5",
+        "monolog/monolog": "^1.23",
+        "symfony/dependency-injection": "^3.4",
+        "symfony/yaml": "^3.4",
+        "symfony/config": "^3.4"
     }
 }

@@ -29,6 +29,11 @@ $wsWorker->onClose = function(ConnectionInterface $connection) use (&$users)
     }
 };
 
+$wsWorker->onMessage = function(ConnectionInterface $connection, $data) use (&$users)
+{
+    
+};
+
 $wsWorker->onWorkerStart = function() use (&$users)
 {
     $innerTcpWorker = new Worker("tcp://127.0.0.1:4444");
