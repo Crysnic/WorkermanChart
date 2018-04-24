@@ -1,12 +1,12 @@
 services:
 
   protocol:
-    class: System\Kernel\Protocol\PostProtocol
+    class: Chat\Kernel\Protocol\PostProtocol
     calls:
       - [setLogger, ['@logger']]
 
   pdo:
-    class: System\Util\DB\MysqlPdoWrapper
+    class: Chat\Util\DB\MysqlPdoWrapper
     arguments:
       - '%mysql.host%'
       - '%mysql.port%'
@@ -15,7 +15,7 @@ services:
       - '%mysql.database%'
 
   format:
-    class: System\Kernel\Protocol\JsonFormat
+    class: Chat\Kernel\Protocol\JsonFormat
 
   logger:
     class: Monolog\Logger

@@ -1,7 +1,7 @@
 services:
 
   repository.users:
-    class: System\Repository\UsersRepository
+    class: Chat\Repository\UsersRepository
     calls:
       - [setLogger, ['@logger']]
       - [setPdo, ["@pdo"]]

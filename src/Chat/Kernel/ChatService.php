@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chat\Kernel;
 
+use Chat\Command\AbstractCommand;
 use Chat\Entity\InternalProtocol\ResponseCode;
 use Chat\Exception\Protocol\ProtocolException;
 use Chat\Exception\Protocol\UnknownCommandException;
@@ -87,13 +88,9 @@ class ChatService extends BaseChatService
      */
     private function makeActionDirectly(): AnswerBundle
     {
-        $packet = $this->getProtocol()->getIncomingPacket();
-
-        $this->logRequest($packet->getData());
-
-        $rows = $this->getFormat()->decode($packet->getData());
+        $rows = $this->getFormat()->decode($this->request);
         $requestBundle = new RequestBundle(
-            $packet->getData(),
+            $this->request,
             $rows,
             md5(microtime())
         );
@@ -101,19 +98,6 @@ class ChatService extends BaseChatService
         $this->loadCommandConfiguration($requestBundle->getCommand());
 
         return $this->startWithInternalProtocol($requestBundle);
-    }
-
-    /**
-     * @param string $data
-     */
-    private function logRequest(string $data)
-    {
-        $this->getLogger()->log('info', "Prepare data", [
-                "data" => $data,
-                "tags" => ["api", "request_data_prepared"],
-                "remote_addr" => $this->getClientIp()
-            ]
-        );
     }
 
     /**
@@ -159,18 +143,19 @@ class ChatService extends BaseChatService
             throw new UnknownCommandException('Command ' . $request->getCommand() . ' not found');
         }
 
-        $action = $this->getDiCommandKey($diCommandKey);
-        if (!($action instanceof AbstractAction)) {
+        $command = $this->getDiCommandKey($diCommandKey);
+        if (!($command instanceof AbstractCommand)) {
             $this->getLogger()->critical(
-                'Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractAction',
+                'Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractCommand',
                 ['tags' => ['error'],'object' => $this]
             );
-            throw new \LogicException('Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractAction');
+            throw new \LogicException('Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractCommand');
         }
 
-        $action->setServicesContainer($this->getServicesContainer());
+        echo $diCommandKey."\n";
+        $command->setServicesContainer($this->getServicesContainer());
 
-        return $action->handle($request);
+        return $command->handle($request);
     }
 
     /**

@@ -8,5 +8,5 @@ spl_autoload_register(function ($class) {
     include_once $path;
 });
 
-$x = new \Chat\Kernel\ChatService(__DIR__ . '/../config', '{"Command":"Test"}');
+$x = new \Chat\Kernel\ChatService(__DIR__ . '/../config', '{"Command":"Repeat","Message":"Hello"}');
 $x->run();
