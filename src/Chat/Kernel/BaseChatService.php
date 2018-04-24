@@ -21,14 +21,14 @@ abstract class BaseChatService implements LoggerReference
     use LoggerReferenceTrait;
 
     /**
-     * @var string
-     */
-    private $environment;
-
-    /**
      * @var ContainerBuilder
      */
     private $servicesContainer;
+
+    /**
+     * @var string
+     */
+    protected $request;
 
     /**
      * @var FileLocator
@@ -59,13 +59,13 @@ abstract class BaseChatService implements LoggerReference
 
     /**
      * @param string $configFileFolder
-     * @param string $environment
+     * @param string $request
      */
-    public function __construct(string $configFileFolder, string $environment)
+    public function __construct(string $configFileFolder, string $request)
     {
         $this->setServicesContainer(new ContainerBuilder());
-        $this->environment = $environment;
         $this->mainLocator = new FileLocator($configFileFolder);
+        $this->request = $request;
     }
 
     public function run(): void
@@ -88,7 +88,7 @@ abstract class BaseChatService implements LoggerReference
     /**
      * Internal method for PHP environment
      */
-    protected function establishEnvironment()
+    protected function establishEnvironment(): void
     {
         mb_internal_encoding('UTF-8');
         date_default_timezone_set('Europe/Kiev');
@@ -101,14 +101,13 @@ abstract class BaseChatService implements LoggerReference
         );
     }
 
-    protected function loadMainConfiguration()
+    protected function loadMainConfiguration(): void
     {
         $loader = new YamlFileLoader($this->getServicesContainer(), $this->mainLocator);
 
         foreach ($this->getServiceConfiguration() as $file) {
             try {
                 $loader->load($file);
-                //$this->getLogger()->info('Success read config file ' . $file);
             } catch (\InvalidArgumentException $e) {
                 $this->getLogger()->debug('Not found config file ' . $file, ['object' => $this]);
             }
@@ -120,16 +119,13 @@ abstract class BaseChatService implements LoggerReference
      *
      * @return string[]
      */
-    public function getServiceConfiguration() : array
+    public function getServiceConfiguration(): array
     {
         return [
             'options.yml',
             'container.yml',
             'repositories.yml',
             'components.yml',
-            
-            'options.' . $this->environment . '.yml',
-            'container.' . $this->environment . '.yml',
         ];
     }
 }

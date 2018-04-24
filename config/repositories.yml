@@ -1,0 +1,7 @@
+services:
+
+  repository.users:
+    class: System\Repository\UsersRepository
+    calls:
+      - [setLogger, ['@logger']]
+      - [setPdo, ["@pdo"]]

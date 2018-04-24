@@ -2,6 +2,12 @@
 
 include_once __DIR__.'/../vendor/autoload.php';
 
+spl_autoload_register(function ($class) {
+    $path =  __DIR__.'/../src/'. str_replace('\\', '/', $class) . '.php';
+    /** @noinspection PhpIncludeInspection */
+    include_once $path;
+});
+
 use Workerman\Worker;
 use Workerman\Connection\ConnectionInterface;
 
@@ -29,9 +35,10 @@ $wsWorker->onClose = function(ConnectionInterface $connection) use (&$users)
     }
 };
 
-$wsWorker->onMessage = function(ConnectionInterface $connection, $data) use (&$users)
+$wsWorker->onMessage = function(ConnectionInterface $connection, string $data) use (&$users)
 {
-    
+    $x = new \Chat\Kernel\ChatService(__DIR__ . '/../config', $data);
+    $x->run();
 };
 
 $wsWorker->onWorkerStart = function() use (&$users)
@@ -42,7 +49,7 @@ $wsWorker->onWorkerStart = function() use (&$users)
 
         if (isset($users[$data->user])) {
             $webconnection = $users[$data->user];
-            $webconnection->send('test');
+            $webconnection->send($data->message);
         }
     };
     $innerTcpWorker->listen();

@@ -1,0 +1,22 @@
+services:
+
+  protocol:
+    class: System\Kernel\Protocol\PostProtocol
+    calls:
+      - [setLogger, ['@logger']]
+
+  pdo:
+    class: System\Util\DB\MysqlPdoWrapper
+    arguments:
+      - '%mysql.host%'
+      - '%mysql.port%'
+      - '%mysql.username%'
+      - '%mysql.password%'
+      - '%mysql.database%'
+
+  format:
+    class: System\Kernel\Protocol\JsonFormat
+
+  logger:
+    class: Monolog\Logger
+    arguments: ['monolog']

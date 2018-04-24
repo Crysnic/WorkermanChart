@@ -20,24 +20,21 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 class ChatService extends BaseChatService
 {
     use ChatServiceDependenciesTrait;
-    
+
     /**
      * SystemService constructor.
      * @param string $configFileFolder
-     * @param string $environment
+     * @param string $request
      */
-    public function __construct(string $configFileFolder, string $environment)
+    public function __construct(string $configFileFolder, string $request)
     {
-        parent::__construct($configFileFolder, $environment);
+        parent::__construct($configFileFolder, $request);
 
         $this->commandsFolder = $configFileFolder . '/commands/';
         $this->commandLocator = new FileLocator($this->commandsFolder);
     }
 
-
-    /**
-     *
-     */
+    
     protected function startSafe(): void
     {
         $this->loadMainConfiguration();
@@ -47,10 +44,7 @@ class ChatService extends BaseChatService
 
         $this->sendAnswer($answerBundle);
     }
-
-    /**
-     *
-     */
+    
     private function receiveDependecies(): void
     {
         $dependencyReceiver = new ChatDependencyReceiver($this);
