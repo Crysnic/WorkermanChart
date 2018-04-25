@@ -37,7 +37,9 @@ $wsWorker->onClose = function(ConnectionInterface $connection) use (&$users)
 
 $wsWorker->onMessage = function(ConnectionInterface $connection, string $data) use (&$users)
 {
-    $x = new \Chat\Kernel\ChatService(__DIR__ . '/../config', $data);
+    $wsMessage = new \Chat\Entity\WsMessage($connection, $data);
+    
+    $x = new \Chat\Kernel\ChatService(__DIR__ . '/../config', $wsMessage);
     $x->run();
 };
 

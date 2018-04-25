@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Chat\Kernel;
 
-use Chat\Command\AbstractCommand;
+use Chat\Action\AbstractAction;
 use Chat\Entity\InternalProtocol\ResponseCode;
+use Chat\Entity\WsMessage;
+use Chat\Exception\Protocol\MakeCommandException;
 use Chat\Exception\Protocol\ProtocolException;
 use Chat\Exception\Protocol\UnknownCommandException;
 use Chat\Kernel\Protocol\AnswerBundle;
-use Chat\Kernel\Protocol\ProtocolPacket;
 use Chat\Kernel\Protocol\RequestBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -25,14 +26,14 @@ class ChatService extends BaseChatService
     /**
      * SystemService constructor.
      * @param string $configFileFolder
-     * @param string $request
+     * @param WsMessage $message
      */
-    public function __construct(string $configFileFolder, string $request)
+    public function __construct(string $configFileFolder, WsMessage $message)
     {
-        parent::__construct($configFileFolder, $request);
+        parent::__construct($configFileFolder, $message);
 
-        $this->commandsFolder = $configFileFolder . '/commands/';
-        $this->commandLocator = new FileLocator($this->commandsFolder);
+        $this->actionsFolder = $configFileFolder . '/actions/';
+        $this->commandLocator = new FileLocator($this->actionsFolder);
     }
 
     
@@ -41,9 +42,13 @@ class ChatService extends BaseChatService
         $this->loadMainConfiguration();
         $this->receiveDependecies();
 
-        $answerBundle = $this->makeAction();
-
-        $this->sendAnswer($answerBundle);
+        try {
+            $answerBundle = $this->makeAction();
+            
+            $this->sendAnswer($answerBundle);
+        } catch (MakeCommandException $e) {
+            
+        }
     }
     
     private function receiveDependecies(): void
@@ -54,32 +59,36 @@ class ChatService extends BaseChatService
 
     /**
      * @return AnswerBundle
+     * @throws MakeCommandException
      */
     private function makeAction(): AnswerBundle
     {
         try {
             return $this->makeActionDirectly();
         } catch (ProtocolException $protocolExc) {
-            $params = [
+            $this->wsMessage->notifySender(json_encode([
                 'Result' => $protocolExc->getCode(),
                 'Message' => $protocolExc->getMessage(),
                 'Time' => date('Y-m-d H:i:s')
-            ];
-            return new AnswerBundle($params);
+            ]));
+            
+            throw new MakeCommandException();
         } catch (\PDOException $e) {
-            $params = [
+            $this->wsMessage->notifySender(json_encode([
                 'Result' => ResponseCode::DATABASE_ERROR,
                 'Message' => 'DataBase error',
                 'Time' => date('Y-m-d H:i:s')
-            ];
-            return new AnswerBundle($params);
+            ]));
+            
+            throw new MakeCommandException();
         } catch (\Throwable $e) {
-            $params = [
+            $this->wsMessage->notifySender(json_encode([
                 'Result' => ResponseCode::UNKNOWN_ERROR,
-                'Message' => "Unknown error",
+                'Message' => $e->getMessage()."\n".$e->getFile()."\t".$e->getLine(),
                 'Time' => date('Y-m-d H:i:s')
-            ];
-            return new AnswerBundle($params);
+            ]));
+            
+            throw new MakeCommandException();
         }
     }
 
@@ -88,9 +97,9 @@ class ChatService extends BaseChatService
      */
     private function makeActionDirectly(): AnswerBundle
     {
-        $rows = $this->getFormat()->decode($this->request);
+        $rows = $this->getFormat()->decode($this->wsMessage->getMessage());
         $requestBundle = new RequestBundle(
-            $this->request,
+            $this->wsMessage->getMessage(),
             $rows,
             md5(microtime())
         );
@@ -137,24 +146,22 @@ class ChatService extends BaseChatService
      */
     private function startWithInternalProtocol(RequestBundle $request): AnswerBundle
     {
-        $diCommandKey = 'command.' . strtolower($request->getCommand());
+        $diCommandKey = 'action.' . strtolower($request->getCommand());
+        echo $diCommandKey."\n"; 
         if (!$this->getServicesContainer()->has($diCommandKey)) {
             $this->getLogger()->debug($diCommandKey . ' not provided in di container');
             throw new UnknownCommandException('Command ' . $request->getCommand() . ' not found');
         }
 
         $command = $this->getDiCommandKey($diCommandKey);
-        if (!($command instanceof AbstractCommand)) {
+        if (!($command instanceof AbstractAction)) {
             $this->getLogger()->critical(
                 'Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractCommand',
                 ['tags' => ['error'],'object' => $this]
             );
             throw new \LogicException('Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractCommand');
         }
-
-        echo $diCommandKey."\n";
-        $command->setServicesContainer($this->getServicesContainer());
-
+        
         return $command->handle($request);
     }
 
@@ -176,15 +183,8 @@ class ChatService extends BaseChatService
         }
     }
 
-    /**
-     * @param AnswerBundle $answerBundle
-     */
-    private function sendAnswer(AnswerBundle $answerBundle)
+    private function sendAnswer(AnswerBundle $answerBundle): void
     {
-        $responseBody = $this->getFormat()->encode($answerBundle);
-
-        $this->getProtocol()->sendResponse(
-            new ProtocolPacket($responseBody, ['Content-Type: json'])
-        );
+        
     }
 }

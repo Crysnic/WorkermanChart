@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chat\Command;
+namespace Chat\Action;
 
 use Chat\Kernel\Protocol\AnswerBundle;
 use Chat\Kernel\Protocol\RequestBundle;
@@ -12,7 +12,7 @@ use Chat\Util\Logging\LoggerReferenceTrait;
  * Class AbstractCommand
  * @package Chat\Command
  */
-abstract class AbstractCommand
+abstract class AbstractAction
 {
     use LoggerReferenceTrait;
 

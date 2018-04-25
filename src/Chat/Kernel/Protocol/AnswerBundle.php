@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chat\Kernel\Protocol;
 
-use Chat\Entity\InternalProtocol\ResponseCode;
 use Chat\Util\ConverterClass\ToStringTrait;
 
 /**
@@ -16,7 +15,6 @@ class AnswerBundle
     use ToStringTrait;
     
     const RESULT_KEY = 'Result';
-    const TIME_KEY = 'Time';
 
     /**
      * @var array
@@ -24,39 +22,19 @@ class AnswerBundle
     private $params;
 
     /**
-     * @var string
+     * @var array
      */
-    private $key = '';
-
-    /**
-     * @var string
-     */
-    private $signature;
-
-    /**
-     * @var string
-     */
-    private $contentType = 'application/json';
-
-    /**
-     * @param array $parameters
-     * @return AnswerBundle
-     */
-    public static function buildSuccess($parameters = []): AnswerBundle
-    {
-        $parameters[self::RESULT_KEY] = ResponseCode::SUCCESS_ACTION;
-        $parameters[self::TIME_KEY] = date('Y-m-d H:i:s');
-
-        return new AnswerBundle($parameters);
-    }
+    private $receiver;
 
     /**
      * AnswerBundle constructor.
      * @param array $params
+     * @param array $receiver
      */
-    public function __construct(array $params)
+    public function __construct(array $params, array $receiver = [])
     {
         $this->params = $params;
+        $this->receiver = $receiver;
     }
 
     /**
@@ -77,50 +55,10 @@ class AnswerBundle
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getKey() : string
+    public function getReceiver(): array
     {
-        return $this->key;
-    }
-
-    /**
-     * @param string $key
-     */
-    public function setKey(string $key)
-    {
-        $this->key = $key;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSignature() : string
-    {
-        return $this->signature;
-    }
-
-    /**
-     * @param string $signature
-     */
-    public function setSignature(string $signature)
-    {
-        $this->signature = $signature;
-    }
-
-    /**
-     * @return string
-     */
-    public function getContentType() : string
-    {
-        return $this->contentType;
-    }
-
-    /**
-     * @param string $contentType
-     */
-    public function setContentType(string $contentType)
-    {
-        $this->contentType = $contentType;
+        return $this->receiver;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chat\Kernel;
 
+use Chat\Entity\WsMessage;
 use Chat\Exception\PhpException;
 use Chat\Util\Logging\LoggerReference;
 use Chat\Util\Logging\LoggerReferenceTrait;
@@ -26,9 +27,9 @@ abstract class BaseChatService implements LoggerReference
     private $servicesContainer;
 
     /**
-     * @var string
+     * @var WsMessage
      */
-    protected $request;
+    protected $wsMessage;
 
     /**
      * @var FileLocator
@@ -59,15 +60,18 @@ abstract class BaseChatService implements LoggerReference
 
     /**
      * @param string $configFileFolder
-     * @param string $request
+     * @param WsMessage $message
      */
-    public function __construct(string $configFileFolder, string $request)
+    public function __construct(string $configFileFolder, WsMessage $message)
     {
         $this->setServicesContainer(new ContainerBuilder());
         $this->mainLocator = new FileLocator($configFileFolder);
-        $this->request = $request;
+        $this->wsMessage = $message;
     }
 
+    /**
+     * @return void
+     */
     public function run(): void
     {
         $this->establishEnvironment();
@@ -75,14 +79,20 @@ abstract class BaseChatService implements LoggerReference
         try {
             $this->startSafe();
         } catch (\Throwable $t) {
-            echo json_encode(['Result' => ResponseCode::UNKNOWN_ERROR, 'Message' => $t->getMessage()]);
             $this->getLogger()->critical($t->getMessage(), ['object' => $this, 'exception' => $t, 'tags' =>['error']]);
+            
+            $message = json_encode(['Result' => ResponseCode::UNKNOWN_ERROR, 'Message' => $t->getMessage()]);
+            $this->wsMessage->notifySender($message);
         } catch (\Exception $e) {
-            echo json_encode(['Result' => ResponseCode::UNKNOWN_ERROR, 'Message' => $e->getMessage()]);
             $this->getLogger()->critical($e->getMessage(), ['object' => $this, 'exception' => $e, 'tags' =>['error']]);
+            $message = json_encode(['Result' => ResponseCode::UNKNOWN_ERROR, 'Message' => $e->getMessage()]);
+            $this->wsMessage->notifySender($message);
         }
     }
 
+    /**
+     * @return void
+     */
     abstract protected function startSafe(): void;
 
     /**
@@ -101,6 +111,9 @@ abstract class BaseChatService implements LoggerReference
         );
     }
 
+    /**
+     * @return void
+     */
     protected function loadMainConfiguration(): void
     {
         $loader = new YamlFileLoader($this->getServicesContainer(), $this->mainLocator);

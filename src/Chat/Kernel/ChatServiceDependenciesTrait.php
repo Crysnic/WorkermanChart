@@ -21,7 +21,7 @@ trait ChatServiceDependenciesTrait
     /**
      * @var string
      */
-    private $commandsFolder;
+    private $actionsFolder;
 
     /**
      * @var FormatInterface

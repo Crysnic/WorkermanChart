@@ -1,5 +1,5 @@
 services:
-  command.repeat:
-    class: Chat\Command\Repeat
+  action.repeat:
+    class: Chat\Action\Repeat
     calls:
       - [setLogger, ['@logger']]
