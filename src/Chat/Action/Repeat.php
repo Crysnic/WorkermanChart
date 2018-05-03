@@ -22,7 +22,7 @@ class Repeat extends AbstractAction
     {
         return new AnswerBundle([
             AnswerBundle::RESULT_KEY => ResponseCode::SUCCESS_ACTION,
-            'Message' => $requestBundle->getParams()['Message']
+            'Message' => $requestBundle->getParams()['Message'] ?? ''
         ]);
     }
 }

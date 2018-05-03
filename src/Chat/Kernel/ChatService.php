@@ -36,19 +36,14 @@ class ChatService extends BaseChatService
         $this->commandLocator = new FileLocator($this->actionsFolder);
     }
 
-    
     protected function startSafe(): void
     {
         $this->loadMainConfiguration();
         $this->receiveDependecies();
 
-        try {
-            $answerBundle = $this->makeAction();
-            
-            $this->sendAnswer($answerBundle);
-        } catch (MakeCommandException $e) {
-            
-        }
+        $answerBundle = $this->makeAction();
+
+        $this->sendAnswer($answerBundle);
     }
     
     private function receiveDependecies(): void
@@ -100,27 +95,12 @@ class ChatService extends BaseChatService
         $rows = $this->getFormat()->decode($this->wsMessage->getMessage());
         $requestBundle = new RequestBundle(
             $this->wsMessage->getMessage(),
-            $rows,
-            md5(microtime())
+            $rows
         );
 
         $this->loadCommandConfiguration($requestBundle->getCommand());
 
         return $this->startWithInternalProtocol($requestBundle);
-    }
-
-    /**
-     * @return string
-     */
-    private function getClientIp(): string
-    {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return (string) $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return (string) $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            return (string) $_SERVER['REMOTE_ADDR'];
-        }
     }
 
     /**
@@ -147,19 +127,18 @@ class ChatService extends BaseChatService
     private function startWithInternalProtocol(RequestBundle $request): AnswerBundle
     {
         $diCommandKey = 'action.' . strtolower($request->getCommand());
-        echo $diCommandKey."\n"; 
         if (!$this->getServicesContainer()->has($diCommandKey)) {
             $this->getLogger()->debug($diCommandKey . ' not provided in di container');
-            throw new UnknownCommandException('Command ' . $request->getCommand() . ' not found');
+            throw new UnknownCommandException('Action ' . $request->getCommand() . ' not found');
         }
 
         $command = $this->getDiCommandKey($diCommandKey);
         if (!($command instanceof AbstractAction)) {
             $this->getLogger()->critical(
-                'Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractCommand',
+                'Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractAction',
                 ['tags' => ['error'],'object' => $this]
             );
-            throw new \LogicException('Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractCommand');
+            throw new \LogicException('Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractAction');
         }
         
         return $command->handle($request);
@@ -183,8 +162,11 @@ class ChatService extends BaseChatService
         }
     }
 
+    /**
+     * @param AnswerBundle $answerBundle
+     */
     private function sendAnswer(AnswerBundle $answerBundle): void
     {
-        
+        $this->wsMessage->notifySender(json_encode($answerBundle->getParams()));
     }
 }
