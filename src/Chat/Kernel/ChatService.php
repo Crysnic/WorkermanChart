@@ -7,7 +7,6 @@ namespace Chat\Kernel;
 use Chat\Action\AbstractAction;
 use Chat\Entity\InternalProtocol\ResponseCode;
 use Chat\Entity\WsMessage;
-use Chat\Exception\Protocol\MakeCommandException;
 use Chat\Exception\Protocol\ProtocolException;
 use Chat\Exception\Protocol\UnknownCommandException;
 use Chat\Kernel\Protocol\RequestBundle;
@@ -34,10 +33,7 @@ class ChatService extends BaseChatService
         $this->actionsFolder = $configFileFolder . '/actions/';
         $this->commandLocator = new FileLocator($this->actionsFolder);
     }
-
-    /**
-     * @throws MakeCommandException
-     */
+    
     protected function startSafe(): void
     {
         $this->loadMainConfiguration();
@@ -52,9 +48,6 @@ class ChatService extends BaseChatService
         $dependencyReceiver->buildWithAllDependencies();
     }
 
-    /**
-     * @throws MakeCommandException
-     */
     private function makeAction(): void
     {
         try {
@@ -65,24 +58,18 @@ class ChatService extends BaseChatService
                 'Message' => $protocolExc->getMessage(),
                 'Time' => date('Y-m-d H:i:s')
             ]));
-            
-            throw new MakeCommandException();
         } catch (\PDOException $e) {
             $this->wsMessage->notifySender(json_encode([
                 'Result' => ResponseCode::DATABASE_ERROR,
                 'Message' => 'DataBase error',
                 'Time' => date('Y-m-d H:i:s')
             ]));
-            
-            throw new MakeCommandException();
         } catch (\Throwable $e) {
             $this->wsMessage->notifySender(json_encode([
                 'Result' => ResponseCode::UNKNOWN_ERROR,
                 'Message' => $e->getMessage()."\n".$e->getFile()."\t".$e->getLine(),
                 'Time' => date('Y-m-d H:i:s')
             ]));
-            
-            throw new MakeCommandException();
         }
     }
 
