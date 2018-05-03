@@ -15,10 +15,4 @@ interface FormatInterface
      * @return array
      */
     public function decode(string $data) : array;
-
-    /**
-     * @param AnswerBundle $bundle
-     * @return string
-     */
-    public function encode(AnswerBundle $bundle) : string;
 }

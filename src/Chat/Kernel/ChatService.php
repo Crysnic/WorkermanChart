@@ -10,7 +10,6 @@ use Chat\Entity\WsMessage;
 use Chat\Exception\Protocol\MakeCommandException;
 use Chat\Exception\Protocol\ProtocolException;
 use Chat\Exception\Protocol\UnknownCommandException;
-use Chat\Kernel\Protocol\AnswerBundle;
 use Chat\Kernel\Protocol\RequestBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -36,14 +35,15 @@ class ChatService extends BaseChatService
         $this->commandLocator = new FileLocator($this->actionsFolder);
     }
 
+    /**
+     * @throws MakeCommandException
+     */
     protected function startSafe(): void
     {
         $this->loadMainConfiguration();
         $this->receiveDependecies();
 
-        $answerBundle = $this->makeAction();
-
-        $this->sendAnswer($answerBundle);
+        $this->makeAction();
     }
     
     private function receiveDependecies(): void
@@ -53,13 +53,12 @@ class ChatService extends BaseChatService
     }
 
     /**
-     * @return AnswerBundle
      * @throws MakeCommandException
      */
-    private function makeAction(): AnswerBundle
+    private function makeAction(): void
     {
         try {
-            return $this->makeActionDirectly();
+            $this->makeActionDirectly();
         } catch (ProtocolException $protocolExc) {
             $this->wsMessage->notifySender(json_encode([
                 'Result' => $protocolExc->getCode(),
@@ -88,26 +87,23 @@ class ChatService extends BaseChatService
     }
 
     /**
-     * @return AnswerBundle
+     * @throws UnknownCommandException
      */
-    private function makeActionDirectly(): AnswerBundle
+    private function makeActionDirectly(): void
     {
         $rows = $this->getFormat()->decode($this->wsMessage->getMessage());
-        $requestBundle = new RequestBundle(
-            $this->wsMessage->getMessage(),
-            $rows
-        );
+        $requestBundle = new RequestBundle($this->wsMessage, $rows);
 
         $this->loadCommandConfiguration($requestBundle->getCommand());
 
-        return $this->startWithInternalProtocol($requestBundle);
+        $this->startWithInternalProtocol($requestBundle);
     }
 
     /**
      * @param string $actionName
      * @throws ProtocolException
      */
-    private function loadCommandConfiguration(string $actionName)
+    private function loadCommandConfiguration(string $actionName): void
     {
         $loader = new YamlFileLoader($this->getServicesContainer(), $this->commandLocator);
         try {
@@ -121,10 +117,9 @@ class ChatService extends BaseChatService
 
     /**
      * @param RequestBundle $request
-     * @return AnswerBundle
      * @throws UnknownCommandException
      */
-    private function startWithInternalProtocol(RequestBundle $request): AnswerBundle
+    private function startWithInternalProtocol(RequestBundle $request): void
     {
         $diCommandKey = 'action.' . strtolower($request->getCommand());
         if (!$this->getServicesContainer()->has($diCommandKey)) {
@@ -141,7 +136,7 @@ class ChatService extends BaseChatService
             throw new \LogicException('Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractAction');
         }
         
-        return $command->handle($request);
+        $command->handle($request);
     }
 
     /**
@@ -160,13 +155,5 @@ class ChatService extends BaseChatService
             );
             throw new UnknownCommandException('Class not found for '.$diActionKey);
         }
-    }
-
-    /**
-     * @param AnswerBundle $answerBundle
-     */
-    private function sendAnswer(AnswerBundle $answerBundle): void
-    {
-        $this->wsMessage->notifySender(json_encode($answerBundle->getParams()));
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Chat\Action;
 
-use Chat\Kernel\Protocol\AnswerBundle;
 use Chat\Kernel\Protocol\RequestBundle;
 use Chat\Util\Logging\LoggerReferenceTrait;
 
@@ -18,7 +17,7 @@ abstract class AbstractAction
 
     /**
      * @param RequestBundle $requestBundle
-     * @return AnswerBundle
+     * @return void
      */
-    abstract public function handle(RequestBundle $requestBundle): AnswerBundle;
+    abstract public function handle(RequestBundle $requestBundle): void;
 }

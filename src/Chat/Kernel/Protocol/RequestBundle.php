@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chat\Kernel\Protocol;
 
+use Chat\Entity\WsMessage;
 use Chat\Exception\Protocol\UnknownCommandException;
 use Chat\Util\ConverterClass\ToStringTrait;
 use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
@@ -19,9 +20,9 @@ class RequestBundle
     const COMMAND_KEY = 'Command';
 
     /**
-     * @var string
+     * @var WsMessage
      */
-    private $request;
+    private $wsMessage;
 
     /**
      * @var array
@@ -30,19 +31,19 @@ class RequestBundle
 
     /**
      * RequestBundle constructor.
-     * @param string $request
+     * @param WsMessage $wsMessage
      * @param array $params
      * @throws UnknownCommandException
      */
     public function __construct(
-        string $request,
+        WsMessage $wsMessage,
         array $params
     ) {
         if (!isset($params[self::COMMAND_KEY])) {
             throw new UnknownCommandException('Request must contain the "'. self::COMMAND_KEY . '" key');
         }
 
-        $this->request = $request;
+        $this->wsMessage = $wsMessage;
         $this->params = $params;
     }
 
@@ -55,17 +56,17 @@ class RequestBundle
     }
 
     /**
-     * @return string
+     * @return WsMessage
      */
-    public function getRequest() : string
+    public function getWsMessage(): WsMessage
     {
-        return $this->request;
+        return $this->wsMessage;
     }
 
     /**
      * @return string
      */
-    public function getCommand() : string
+    public function getCommand(): string
     {
         return $this->params[self::COMMAND_KEY];
     }

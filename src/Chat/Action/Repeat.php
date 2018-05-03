@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Chat\Action;
 
-use Chat\Entity\InternalProtocol\ResponseCode;
-use Chat\Kernel\Protocol\AnswerBundle;
 use Chat\Kernel\Protocol\RequestBundle;
 
 /**
@@ -16,13 +14,11 @@ class Repeat extends AbstractAction
 {
     /**
      * @param RequestBundle $requestBundle
-     * @return AnswerBundle
+     * @return void
      */
-    public function handle(RequestBundle $requestBundle): AnswerBundle
+    public function handle(RequestBundle $requestBundle): void
     {
-        return new AnswerBundle([
-            AnswerBundle::RESULT_KEY => ResponseCode::SUCCESS_ACTION,
-            'Message' => $requestBundle->getParams()['Message'] ?? ''
-        ]);
+        $message = json_encode(['Message' => $requestBundle->getParams()['Message'] ?? '']);
+        $requestBundle->getWsMessage()->notifySender($message);
     }
 }
