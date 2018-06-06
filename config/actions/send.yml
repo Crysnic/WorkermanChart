@@ -1,0 +1,5 @@
+services:
+  action.send:
+    class: Chat\Action\Send
+    calls:
+      - [setLogger, ['@logger']]
