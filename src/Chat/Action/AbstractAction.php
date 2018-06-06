@@ -16,6 +16,27 @@ abstract class AbstractAction
     use LoggerReferenceTrait;
 
     /**
+     * @var array
+     */
+    private $users;
+
+    /**
+     * @return array
+     */
+    public function getUsers(): array
+    {
+        return $this->users;
+    }
+
+    /**
+     * @param array $users
+     */
+    public function setUsers(array &$users)
+    {
+        $this->users = $users;
+    }
+
+    /**
      * @param RequestBundle $requestBundle
      * @return void
      */

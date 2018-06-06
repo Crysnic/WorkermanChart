@@ -10,9 +10,13 @@
     <div id="page-wrapper">
         <h1>WebSockets Demo</h1>
 
-        <div id="status">Connecting...</div>
+        <div id="status">Disconnected</div>
 
         <ul id="messages"></ul>
+
+        <label for="user">Login</label>
+        <input type="text" id="user" placeholder="Enter user login">
+        <button type="button" id="connect">Connect</button>
 
         <form  id="message-form" action="#" method="post">
             <textarea id="message" placeholder="Write your message here..." required></textarea>

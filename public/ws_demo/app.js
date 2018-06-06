@@ -3,17 +3,45 @@ window.onload = function () {
     var messageField = document.getElementById('message');
     var messagesList = document.getElementById('messages');
     var socketStatus = document.getElementById('status');
+    var userField = document.getElementById('user');
+    var connectBtn = document.getElementById('connect');
     var closeBtn = document.getElementById('close');
 
-    var socket = new WebSocket('ws://127.0.0.1:2346/?user=vladimir');
+    var socket = null;
+    var userName = null;
 
-    socket.onopen = function (event) {
-        socketStatus.innerHTML = 'Connected to: ' + event.currentTarget.url;
-        socketStatus.className = 'open';
-    };
-    
-    socket.onerror = function (error) {
-      console.log('WebSocket Error: ' + error);
+    connectBtn.onclick = function (event) {
+        event.preventDefault();
+
+        socketStatus.innerHTML = 'Connecting...';
+
+        if (userName) {
+            socket.close();
+        }
+
+        userName = userField.value;
+        socket = new WebSocket('ws://127.0.0.1:2346/?user='+userName);
+
+        socket.onopen = function (event) {
+            socketStatus.innerHTML = 'Connected to: ' + event.currentTarget.url;
+            socketStatus.className = 'open';
+        };
+
+        socket.onerror = function (error) {
+            console.log('WebSocket Error: ' + error);
+        };
+
+        socket.onmessage = function (event) {
+            var message = event.data;
+            messagesList.innerHTML += '<li class="received"><span>Received:</span>'+message+'</li>';
+        };
+
+        socket.onclose = function (event) {
+            socketStatus.innerHTML = 'Disconnected from WebSocket';
+            socketStatus.className = 'closed';
+        };
+
+        return false;
     };
 
     form.onsubmit = function (e) {
@@ -23,20 +51,9 @@ window.onload = function () {
 
         socket.send(message);
 
-        messagesList.innerHTML += '<li class="sent"><span>Sent:</span>'+message+'</li>';
-        messageField.value = '';
+        messagesList.innerHTML += '<li class="sent"><span>' + userName + ' sent:</span>'+message+'</li>';
 
         return false;
-    };
-
-    socket.onmessage = function (event) {
-        var message = event.data;
-        messagesList.innerHTML += '<li class="received"><span>Received:</span>'+message+'</li>';
-    };
-
-    socket.onclose = function (event) {
-        socketStatus.innerHTML = 'Disconnected from WebSocket';
-        socketStatus.className = 'closed';
     };
 
     closeBtn.onclick = function (event) {

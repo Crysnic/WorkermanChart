@@ -76,7 +76,7 @@ class WsServer
         {
             $wsMessage = new WsMessage($connection, $data);
 
-            $x = new ChatService(__DIR__ . '/../../../config', $wsMessage);
+            $x = new ChatService(__DIR__ . '/../../../config', $wsMessage, $users);
             $x->run();
         };
     }

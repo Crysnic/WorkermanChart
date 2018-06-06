@@ -8,7 +8,13 @@ composer install
 php server/index.php start
 ```
 ## ToDo
-1. Create Class for server
+1. Create command Send, for example:
+```
+{
+    "Command":"Send",
+    "To":"receiver",
+    "Message":"Hello man!"
+}
+```
 2. Load server info from DI
-3. Complete the command Repeat
-4. Refactoring Kernel
+3. Refactoring Kernel

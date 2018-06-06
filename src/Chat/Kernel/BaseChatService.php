@@ -42,6 +42,11 @@ abstract class BaseChatService implements LoggerReference
     protected $loadedActionsFiles = [];
 
     /**
+     * @var array
+     */
+    protected $users;
+
+    /**
      * @return ContainerBuilder
      */
     public function getServicesContainer() : ContainerBuilder
@@ -61,12 +66,14 @@ abstract class BaseChatService implements LoggerReference
     /**
      * @param string $configFileFolder
      * @param WsMessage $message
+     * @param array $users
      */
-    public function __construct(string $configFileFolder, WsMessage $message)
+    public function __construct(string $configFileFolder, WsMessage $message, array &$users)
     {
         $this->setServicesContainer(new ContainerBuilder());
         $this->mainLocator = new FileLocator($configFileFolder);
         $this->wsMessage = $message;
+        $this->users = $users;
     }
 
     /**

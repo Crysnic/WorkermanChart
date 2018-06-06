@@ -25,10 +25,11 @@ class ChatService extends BaseChatService
      * SystemService constructor.
      * @param string $configFileFolder
      * @param WsMessage $message
+     * @param array $users
      */
-    public function __construct(string $configFileFolder, WsMessage $message)
+    public function __construct(string $configFileFolder, WsMessage $message, array &$users)
     {
-        parent::__construct($configFileFolder, $message);
+        parent::__construct($configFileFolder, $message, $users);
 
         $this->actionsFolder = $configFileFolder . '/actions/';
         $this->commandLocator = new FileLocator($this->actionsFolder);
@@ -122,6 +123,7 @@ class ChatService extends BaseChatService
             );
             throw new \LogicException('Wrong configuration! ' . $diCommandKey . ' must be instance of AbstractAction');
         }
+        $command->setUsers($this->users);
         
         $command->handle($request);
     }
