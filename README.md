@@ -16,5 +16,8 @@ php server/index.php start
     "Message":"Hello man!"
 }
 ```
-2. Load server info from DI
-3. Refactoring Kernel
+2. Add validation for Action Send
+3. Add Wrapper for users array
+4. Add Facade for Action Send
+5. Load server info from DI
+6. Refactoring Kernel
