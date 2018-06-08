@@ -5,6 +5,7 @@
         "symfony/dependency-injection": "^3.4",
         "symfony/yaml": "^3.4",
         "symfony/config": "^3.4",
-        "react/event-loop": "^0.5.2"
+        "react/event-loop": "^0.5.2",
+        "symfony/validator": "^4.1"
     }
 }
