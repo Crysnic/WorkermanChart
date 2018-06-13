@@ -6,6 +6,8 @@ namespace Chat\Action;
 
 use Chat\Entity\InternalProtocol\Request\SendRequest;
 use Chat\Kernel\Protocol\RequestBundle;
+use Chat\Util\Validation\Constraints\ChatLength;
+use Chat\Util\Validation\Constraints\ChatNotBlank;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Workerman\Connection\ConnectionInterface;
@@ -35,9 +37,9 @@ class Send extends AbstractAction
         $validator = Validation::createValidator();
         $constraint = new Assert\Collection([
             'fields' => [
-                'Command' => new Assert\NotBlank(['message' => '<Command> parameter should not be blank.']),
-                'To' => new Assert\NotBlank(['message' => '<To> parameter should not be blank.']),
-                'Message' => new Assert\NotBlank(['message' => '<Message> parameter should not be blank.'])
+                'Command' => new ChatNotBlank(),
+                'To' => [new ChatNotBlank(), new ChatLength(['min' => 3, 'max' => 25])],
+                'Message' => [new ChatNotBlank(), new ChatLength(['max' => 255])]
             ],
             'missingFieldsMessage' => '<{{ field }}> is missing.'
         ]);
