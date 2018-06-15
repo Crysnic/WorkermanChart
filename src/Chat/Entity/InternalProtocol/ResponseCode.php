@@ -21,5 +21,6 @@ class ResponseCode
     const VALIDATION_ERROR = -92;
     const INVALID_ARGUMENT = -91;
     const MISSING_ARGUMENT = -90;
+    const USER_NOT_FOUND = -80;
     const SUCCESS_ACTION = 10;
 }
