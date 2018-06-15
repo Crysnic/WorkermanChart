@@ -77,11 +77,11 @@ class WsServer
             $wsMessage = new WsMessage($connection, $data);
 
             $x = new ChatService(__DIR__ . '/../../../config', $wsMessage, $users);
-            $x->run();
+            $x->runServer();
         };
     }
     
-    public function run(): void
+    public function runServer(): void
     {
         Worker::runAll();
     }

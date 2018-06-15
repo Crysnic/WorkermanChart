@@ -13,7 +13,7 @@ class SendRequest extends Request
     /**
      * @var string
      */
-    private $to;
+    private $toRecipient;
 
     /**
      * @var string
@@ -29,16 +29,16 @@ class SendRequest extends Request
     public function __construct(string $command, string $to, string $message)
     {
         parent::__construct($command);
-        $this->to = $to;
+        $this->toRecipient = $to;
         $this->message = $message;
     }
 
     /**
      * @return string
      */
-    public function getTo(): string
+    public function getToRecipient(): string
     {
-        return $this->to;
+        return $this->toRecipient;
     }
 
     /**

@@ -11,6 +11,7 @@ class JsonFormat implements FormatInterface
     /**
      * @inheritDoc
      * @throws \LogicException
+     * @throws WrongFormatException
      */
     public function decode(string $data) : array
     {

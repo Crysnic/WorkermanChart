@@ -10,8 +10,8 @@ use Chat\Kernel\Protocol\ProtocolInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class SystemDependecyReceiver
- * @package System\Kernel
+ * Class ChatDependencyReceiver
+ * @package Chat\Kernel
  */
 class ChatDependencyReceiver
 {
@@ -21,7 +21,7 @@ class ChatDependencyReceiver
     private $chatService;
 
     /**
-     * SystemDependecyReceiver constructor.
+     * ChatDependencyReceiver constructor.
      * @param ChatService $chatService
      */
     public function __construct(ChatService $chatService)
@@ -32,7 +32,7 @@ class ChatDependencyReceiver
     /**
      * @throws DiException
      */
-    public function buildWithAllDependencies()
+    public function build()
     {
         $this->receiveLogger();
         $this->receiveFormat();
@@ -42,6 +42,7 @@ class ChatDependencyReceiver
     /**
      * @throws DiException
      * @throws \LogicException
+     * @throws \Exception
      */
     private function receiveLogger()
     {
@@ -65,6 +66,7 @@ class ChatDependencyReceiver
     /**
      * @throws DiException
      * @throws \LogicException
+     * @throws \Exception
      */
     private function receiveFormat()
     {
@@ -91,6 +93,7 @@ class ChatDependencyReceiver
     /**
      * @throws DiException
      * @throws \LogicException
+     * @throws \Exception
      */
     private function receiveProtocol()
     {

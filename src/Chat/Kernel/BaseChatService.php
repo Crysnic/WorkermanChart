@@ -79,7 +79,7 @@ abstract class BaseChatService implements LoggerReference
     /**
      * @return void
      */
-    public function run(): void
+    public function runServer(): void
     {
         $this->establishEnvironment();
 

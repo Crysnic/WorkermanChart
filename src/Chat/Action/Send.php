@@ -25,11 +25,11 @@ class Send extends AbstractAction
     {
         $request = $this->validate($requestBundle->getParams());
 
-        if (!isset($this->getUsers()[$request->getTo()])) {
-            throw new UserNotFoundException($request->getTo());
+        if (!isset($this->getUsers()[$request->getToRecipient()])) {
+            throw new UserNotFoundException($request->getToRecipient());
         }
         /** @var ConnectionInterface $userConnection */
-        $userConnection = $this->getUsers()[$request->getTo()];
+        $userConnection = $this->getUsers()[$request->getToRecipient()];
         $userConnection->send($request->getMessage());
     }
 

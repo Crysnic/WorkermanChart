@@ -43,7 +43,7 @@ class ChatService extends BaseChatService
     protected function startSafe(): void
     {
         $this->loadMainConfiguration();
-        $this->receiveDependecies();
+        $this->receiveDependencies();
 
         $this->makeAction();
     }
@@ -51,10 +51,10 @@ class ChatService extends BaseChatService
     /**
      * @throws DiException
      */
-    private function receiveDependecies(): void
+    private function receiveDependencies(): void
     {
         $dependencyReceiver = new ChatDependencyReceiver($this);
-        $dependencyReceiver->buildWithAllDependencies();
+        $dependencyReceiver->build();
     }
 
     private function makeAction(): void
@@ -91,7 +91,7 @@ class ChatService extends BaseChatService
         $rows = $this->getFormat()->decode($this->wsMessage->getMessage());
         $requestBundle = new RequestBundle($this->wsMessage, $rows);
 
-        $this->loadCommandConfiguration($requestBundle->getCommand());
+        $this->loadCommandSetting($requestBundle->getCommand());
 
         $this->startWithInternalProtocol($requestBundle);
     }
@@ -100,7 +100,7 @@ class ChatService extends BaseChatService
      * @param string $actionName
      * @throws ProtocolException
      */
-    private function loadCommandConfiguration(string $actionName): void
+    private function loadCommandSetting(string $actionName): void
     {
         $loader = new YamlFileLoader($this->getServicesContainer(), $this->commandLocator);
         try {

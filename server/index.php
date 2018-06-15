@@ -13,4 +13,4 @@ use Chat\Server\WsServer;
 $wsServer = new WsServer("websocket://0.0.0.0:2346");
 $wsServer->setEventsHandlers();
 
-$wsServer->run();
+$wsServer->runServer();

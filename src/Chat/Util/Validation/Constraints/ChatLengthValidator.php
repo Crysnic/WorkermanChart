@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chat\Util\Validation\Constraints;
 
+use Chat\Exception\Action\ValidationException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -12,6 +13,7 @@ class ChatLengthValidator extends ConstraintValidator
 {
     /**
      * {@inheritdoc}
+     * @throws ValidationException
      */
     public function validate($value, Constraint $constraint)
     {
@@ -31,6 +33,8 @@ class ChatLengthValidator extends ConstraintValidator
 
         if (!$invalidCharset = !@mb_check_encoding($stringValue, $constraint->charset)) {
             $length = mb_strlen($stringValue, $constraint->charset);
+        } else {
+            throw new ValidationException('Unknown charset error');
         }
 
         if ($invalidCharset) {
