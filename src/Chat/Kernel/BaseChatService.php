@@ -90,10 +90,6 @@ abstract class BaseChatService implements LoggerReference
             
             $message = json_encode(['Result' => ResponseCode::UNKNOWN_ERROR, 'Message' => $t->getMessage()]);
             $this->wsMessage->notifySender($message);
-        } catch (\Exception $e) {
-            $this->getLogger()->critical($e->getMessage(), ['object' => $this, 'exception' => $e, 'tags' =>['error']]);
-            $message = json_encode(['Result' => ResponseCode::UNKNOWN_ERROR, 'Message' => $e->getMessage()]);
-            $this->wsMessage->notifySender($message);
         }
     }
 
@@ -130,6 +126,8 @@ abstract class BaseChatService implements LoggerReference
                 $loader->load($file);
             } catch (\InvalidArgumentException $e) {
                 $this->getLogger()->debug('Not found config file ' . $file, ['object' => $this]);
+            } catch (\Exception $t) {
+                $this->getLogger()->critical('Not load config file ' . $file, ['error' => $t]);
             }
         }
     }

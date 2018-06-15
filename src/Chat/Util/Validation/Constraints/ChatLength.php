@@ -6,6 +6,10 @@ namespace Chat\Util\Validation\Constraints;
 
 use Symfony\Component\Validator\Constraints\Length;
 
+/**
+ * Class ChatLength
+ * @package Chat\Util\Validation\Constraints
+ */
 class ChatLength extends Length
 {
     public $maxMessage = '{{ value }} is too long. It should have {{ limit }} character or less.|{{ value }} is too long. It should have {{ limit }} characters or less.';

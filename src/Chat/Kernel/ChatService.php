@@ -7,6 +7,7 @@ namespace Chat\Kernel;
 use Chat\Action\AbstractAction;
 use Chat\Entity\InternalProtocol\ResponseCode;
 use Chat\Entity\WsMessage;
+use Chat\Exception\DiException;
 use Chat\Exception\Protocol\ProtocolException;
 use Chat\Exception\Protocol\UnknownCommandException;
 use Chat\Kernel\Protocol\RequestBundle;
@@ -34,7 +35,11 @@ class ChatService extends BaseChatService
         $this->actionsFolder = $configFileFolder . '/actions/';
         $this->commandLocator = new FileLocator($this->actionsFolder);
     }
-    
+
+    /**
+     *
+     * @throws DiException
+     */
     protected function startSafe(): void
     {
         $this->loadMainConfiguration();
@@ -42,7 +47,10 @@ class ChatService extends BaseChatService
 
         $this->makeAction();
     }
-    
+
+    /**
+     * @throws DiException
+     */
     private function receiveDependecies(): void
     {
         $dependencyReceiver = new ChatDependencyReceiver($this);
@@ -76,6 +84,7 @@ class ChatService extends BaseChatService
 
     /**
      * @throws UnknownCommandException
+     * @throws ProtocolException
      */
     private function makeActionDirectly(): void
     {

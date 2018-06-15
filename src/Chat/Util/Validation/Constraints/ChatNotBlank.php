@@ -12,5 +12,5 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class ChatNotBlank extends NotBlank
 {
-    public $message = '<{{ field }}> parameter should not be blank.';
+    public $message = '<{{ value }}> parameter should not be blank.';
 }

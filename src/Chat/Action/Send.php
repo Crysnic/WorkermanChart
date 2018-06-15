@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Chat\Action;
 
 use Chat\Entity\InternalProtocol\Request\SendRequest;
+use Chat\Exception\Action\ValidationException;
 use Chat\Kernel\Protocol\RequestBundle;
 use Chat\Util\Validation\Constraints\ChatLength;
 use Chat\Util\Validation\Constraints\ChatNotBlank;
-use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validation;
 use Workerman\Connection\ConnectionInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -18,6 +19,8 @@ class Send extends AbstractAction
     /**
      * @param RequestBundle $requestBundle
      * @return void
+     *
+     * @throws ValidationException
      */
     public function handle(RequestBundle $requestBundle): void
     {
@@ -31,6 +34,8 @@ class Send extends AbstractAction
     /**
      * @param array $params
      * @return SendRequest
+     *
+     * @throws ValidationException
      */
     private function validation(array $params): SendRequest
     {
@@ -45,15 +50,26 @@ class Send extends AbstractAction
         ]);
 
         $violations = $validator->validate($params, $constraint);
-        if (0 !== count($violations)) {
-            $this->getLogger()->info($violations[0]->getMessage());
-            throw new ValidatorException($violations[0]->getMessage());
-        }
+        $this->checkViolations($violations);
 
         return new SendRequest(
             $params['Command'],
             $params['To'],
             $params['Message']
         );
+    }
+
+
+    /**
+     * @param ConstraintViolationListInterface $violations
+     * @return void
+     * @throws ValidationException
+     */
+    private function checkViolations(ConstraintViolationListInterface $violations): void
+    {
+        if (0 !== count($violations)) {
+            $this->getLogger()->info($violations[0]->getMessage());
+            throw new ValidationException($violations[0]->getMessage());
+        }
     }
 }
