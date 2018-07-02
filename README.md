@@ -16,7 +16,7 @@ php server/index.php start
     "Message":"Hello man!"
 }
 ```
-2. Add validation for Action Send
+2. Add Authorization
 3. Add Wrapper for users array
 4. Add Facade for Action Send
 5. Load server info from DI
