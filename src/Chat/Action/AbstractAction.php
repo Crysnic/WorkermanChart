@@ -41,6 +41,15 @@ abstract class AbstractAction
     }
 
     /**
+     * @param $userName
+     * @param $connection
+     */
+    public function addUser($userName, $connection): void
+    {
+        $this->users[$userName] = $connection;
+    }
+
+    /**
      * @param array $validationFields
      * @param array $params
      * @return void

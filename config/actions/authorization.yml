@@ -1,0 +1,5 @@
+services:
+  action.authorization:
+    class: Chat\Action\Authorization
+    calls:
+      - [setLogger, ['@logger']]

@@ -42,14 +42,11 @@ class WsServer
     {
         $users = &$this->users;
         
-        $this->wsWorker->onConnect = function(ConnectionInterface $connection) use (&$users)
+        $this->wsWorker->onConnect = function(ConnectionInterface $connection)
         {
-            $connection->onWebSocketConnect = function($webConnection) use (&$users)
+            $connection->onWebSocketConnect = function()
             {
-                if (isset($_GET['user']) and $_GET['user'] != '' and preg_match('/^[a-zA-Z0-9_]+$/', $_GET['user'])) {
-                    $users[$_GET['user']] = $webConnection;
-                    echo "Connected ".$_GET['user']."\n";
-                }
+                echo "Connected guest\n";
             };
         };
     }

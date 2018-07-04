@@ -3,7 +3,6 @@ window.onload = function () {
     var messageField = document.getElementById('message');
     var messagesList = document.getElementById('messages');
     var socketStatus = document.getElementById('status');
-    var userField = document.getElementById('user');
     var connectBtn = document.getElementById('connect');
     var closeBtn = document.getElementById('close');
 
@@ -15,12 +14,7 @@ window.onload = function () {
 
         socketStatus.innerHTML = 'Connecting...';
 
-        if (userName) {
-            socket.close();
-        }
-
-        userName = userField.value;
-        socket = new WebSocket('ws://127.0.0.1:2346/?user='+userName);
+        socket = new WebSocket('ws://127.0.0.1:2346/');
 
         socket.onopen = function (event) {
             socketStatus.innerHTML = 'Connected to: ' + event.currentTarget.url;
